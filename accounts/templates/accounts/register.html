@@ -1,0 +1,9 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+  <h2>Register</h2>
+  <form method="post">
+    {% csrf_token %} <!-- Schutz vor CSRF-Attacken; wichtig auch ohne Django-Auth -->
+    {{ form.as_p }} <!-- rendert das Formular -->
+    <button type="submit">Register</button>
+  </form>
+{% endblock %}

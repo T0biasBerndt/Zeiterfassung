@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Accounts</title>
+  <style>
+    /* links die Hauptlinks, rechts die Buttons im Header */
+    header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:8px; }
+    nav.left { display:flex; gap:8px; }
+    .user-link { margin-left:auto; display:flex; align-items:center; gap:8px; }
+    .user-actions { display:flex; gap:8px; align-items:center; } /* gruppiert rechte Buttons */
+    .upgrade-btn[disabled] { opacity:0.5; cursor:not-allowed; } /* wenn disabled */
+    .upgrade-form { display:inline; margin:0; }
+
+    /* Bereich für Benutzer-Infos (jetzt im Body, unterhalb des Header) */
+    .user-info { display:flex; justify-content:flex-end; padding:6px 12px; margin-top:8px; }
+    .user-info .box { text-align:right; font-size:0.95em; color:#333; background:transparent; }
+    .user-info .box small { color:#666; display:block; }
+
+    /* Styles für Sidebar und Benutzerbox */
+    .page-container { display:flex; gap:16px; padding:0 12px; }
+    .content-area { flex:1; } /* nimmt den verfügbaren Platz ein */
+    .sidebar { width:250px; } /* feste Breite für die Sidebar */
+    .user-box { background:#f9f9f9; padding:12px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    .user-box button { display:block; width:100%; text-align:left; padding:8px; background:none; border:none; border-radius:4px; font-weight:bold; font-size:1.05em; cursor:pointer; }
+    .user-box button:hover { background:#e0e0e0; } /* Hover-Effekt für den Profil-Button */
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="left">
+      <a href="{% url 'accounts:home' %}">Home</a>
+      <!-- Register/Login/Logout entfernt von hier und oben rechts platziert -->
+    </nav>
+
+    <!-- Top-right reachable controls (upgrade / auth buttons) -->
+    <div class="user-link">
+      {% if user %}
+        <div class="user-actions">
+          {% if user.role != 'admin' %}
+            <form method="post" action="{% url 'accounts:request_upgrade' %}" class="upgrade-form" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="upgrade-btn" {% if user.upgrade_requested %}disabled{% endif %}>
+                {% if user.upgrade_requested %}Upgrade requested{% else %}Request upgrade{% endif %}
+              </button>
+            </form>
+          {% endif %}
+          <form method="post" action="{% url 'accounts:logout' %}" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+          </form>
+        </div>
+      {% else %}
+        <div class="user-actions">
+          <form method="get" action="{% url 'accounts:register' %}" style="display:inline; margin:0;">
+            <button type="submit">Register</button>
+          </form>
+          <form method="get" action="{% url 'accounts:login' %}" style="display:inline; margin:0;">
+            <button type="submit">Login</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <hr>
+
+  <!-- page container with content + sidebar -->
+  <div class="page-container">
+    <main class="content-area">
+      {% block content %}{% endblock %}
+    </main>
+
+    <aside class="sidebar">
+      {% if user %}
+        <div class="user-box">
+          <!-- Username as profile button (GET) -->
+          <form method="get" action="{% url 'accounts:profile' %}" style="margin:0;">
+            <!-- zeigt den Benutzernamen und navigiert zur Profilseite -->
+            <button type="submit" style="background:none;border:none;padding:0;font-weight:bold;font-size:1.05em;cursor:pointer;">
+              {{ user.username }}
+            </button>
+          </form>
+          <span class="small">{{ user.email }}</span><br> <!-- zeigt E-Mail -->
+          <span class="small">Role: {{ user.role }}</span> <!-- zeigt Rolle -->
+          {% if user.upgrade_requested %}
+            <div style="margin-top:8px; color:#b42a00;"><em>Upgrade requested</em></div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </aside>
+  </div>
+
+</body>
+</html>
+

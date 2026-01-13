@@ -1,0 +1,22 @@
+[
+  {
+    "username": "admin",
+    "email": "berndt_tobias@teams.hs-ludwigsburg.de",
+    "password": "admin1234",
+    "role": "admin"
+  },
+  {
+    "username": "test1",
+    "email": "test@gmail.com",
+    "password": "test1234",
+    "role": "vip",
+    "upgrade_requested": true
+  },
+  {
+    "username": "test2",
+    "email": "test@gmail.com",
+    "password": "test1234",
+    "role": "user",
+    "upgrade_requested": false
+  }
+]

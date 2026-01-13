@@ -1,0 +1,140 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+  <h1>Home</h1>
+
+  {% if user %}
+    <div style="border:1px solid #4CAF50; padding:16px; background:#f0fff0; max-width:800px;">
+
+      <!-- Tab buttons -->
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <button id="tab-reports" class="tab-btn" type="button">Work reports</button>
+          <button id="tab-summary" class="tab-btn" type="button">Time summary</button>
+      </div>
+
+      <!-- Summary section -->
+      <div id="summary-section" class="tab-section">
+        <h3>Time summary by module</h3>
+        {% if report_summary and report_summary.by_module %}
+          <p><strong>Total minutes:</strong> {{ report_summary.total_minutes }}</p>
+          <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; margin-bottom:12px;">
+            <thead>
+              <tr><th>Module</th><th>Minutes</th><th>Share (%)</th></tr>
+            </thead>
+            <tbody>
+              {% for m in report_summary.by_module %}
+                <tr>
+                  <td>{{ m.module }}</td>
+                  <td>{{ m.minutes }}</td>
+                  <td>{{ m.percent }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No time recorded yet.</p>
+        {% endif %}
+      </div>
+
+      <!-- Reports section -->
+      <div id="reports-section" class="tab-section" style="display:none;">
+        <h3>Create new report</h3>
+        <form method="post" action="{% url 'accounts:create_report' %}">
+          {% csrf_token %}
+          {{ report_form.as_p }}  <!-- rendert Felder: minutes, date, module, content -->
+          <button type="submit">Add report</button>
+        </form>
+
+        <h3>Your work reports</h3>
+        {% if reports %}
+          <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; margin-bottom:12px;">
+            <thead>
+              <tr><th>Date</th><th>Minutes</th><th>Module</th><th>Content</th></tr>
+            </thead>
+            <tbody>
+              {% for r in reports %}
+                <tr>
+                  <td>{{ r.date }}</td>
+                  <td>{{ r.minutes }}</td>
+                  <td>{{ r.module }}</td>
+                  <td>{{ r.content }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No reports yet.</p>
+        {% endif %}
+
+        <!-- VIP/Admin tools: export (json/csv/xml) and CSV upload to overwrite data -->
+        {% if user.role == 'vip' or user.role == 'admin' %}
+          <hr>
+          <h3>Data export / import (VIP & Admin)</h3>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+            <!-- unified export form with dropdown to choose format -->
+            <form method="get" action="{% url 'accounts:export_reports' %}" style="display:inline;">
+              <label for="export-format">Format:</label>
+              <select id="export-format" name="format">
+                <option value="json">JSON</option>
+                <option value="csv">CSV</option>
+                <option value="xml">XML</option>
+              </select>
+              <button type="submit">Download</button>
+            </form>
+          </div>
+
+          <!-- Upload CSV to overwrite user's reports -->
+          <form method="post" action="{% url 'accounts:upload_reports' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label>Upload CSV to overwrite your reports: <input type="file" name="csv_file" accept=".csv,text/csv" required></label><br>
+            <button type="submit">Upload CSV</button>
+            <p style="font-size:0.9em; color:#444;">CSV must have headers: date,minutes,module,content</p>
+          </form>
+        {% endif %}
+
+      </div>
+
+      <!-- logout button kept -->
+      <p style="margin-top:12px;">
+        <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit">Logout</button></form>
+      </p>
+    </div>
+    <script>
+      (function(){
+        const btnSummary = document.getElementById('tab-summary');
+        const btnReports = document.getElementById('tab-reports');
+        const secSummary = document.getElementById('summary-section');
+        const secReports = document.getElementById('reports-section');
+
+        function showSummary(){
+          secSummary.style.display = '';
+          secReports.style.display = 'none';
+          btnSummary.disabled = true;
+          btnReports.disabled = false;
+        }
+        function showReports(){
+          secSummary.style.display = 'none';
+          secReports.style.display = '';
+          btnSummary.disabled = false;
+          btnReports.disabled = true;
+        }
+
+        // initial: show reports
+        showReports();
+
+        btnSummary.addEventListener('click', showSummary);
+        btnReports.addEventListener('click', showReports);
+      })();
+    </script>
+
+  {% else %}
+    <div style="border:1px solid #ccc; padding:12px; max-width:600px;">
+      <p><strong>Not logged in.</strong></p>
+      <p>
+        <a href="{% url 'accounts:login' %}">Login</a>
+        &nbsp;|&nbsp;
+        <a href="{% url 'accounts:register' %}">Register</a>
+      </p>
+    </div>
+  {% endif %}
+
+{% endblock %}

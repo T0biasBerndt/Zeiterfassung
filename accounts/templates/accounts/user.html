@@ -1,0 +1,77 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+  <h1>User profile</h1>
+
+<!-- Falls Admin: zeige Upgrade-Anfragen als eigenes Panel mit Accept / Deny Buttons -->
+  {% if users and user.role == 'admin' %}
+    <hr>
+    <h2>Pending upgrade requests</h2>
+    {% if pending %}
+      <ul>
+        {% for u in pending %}
+          <li>
+            <strong>{{ u.username }}</strong> ({{ u.email }}) hat ein Upgrade angefragt.
+            <!-- Ziel dynamisch berechnen: user -> vip, vip -> admin -->
+            <em>→ requested:
+              {% if u.role == "user" %}vip
+              {% elif u.role == "vip" %}admin
+              {% else %}—{% endif %}
+            </em>
+            <!-- Accept form -->
+            <form method="post" action="{% url 'accounts:accept_upgrade' %}" style="display:inline; margin-left:12px;">
+              {% csrf_token %}
+              <input type="hidden" name="username" value="{{ u.username }}" />
+              <button type="submit">Accept</button>
+            </form>
+            <!-- Deny form -->
+            <form method="post" action="{% url 'accounts:deny_upgrade' %}" style="display:inline; margin-left:6px;">
+              {% csrf_token %}
+              <input type="hidden" name="username" value="{{ u.username }}" />
+              <button type="submit">Deny</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Keine Upgrade-Anfragen vorhanden.</p>
+    {% endif %}
+  {% endif %}
+
+
+  {% if users %}
+    <hr>
+    <h2>Übersicht aller Benutzer</h2>
+    <table border ="1" cellpadding ="6" cellspacing ="0" style="border-collapse:collapse; margin-top:8px;">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role|default:"user" }}</td>
+            <td>
+              <form method="post" action="{% url 'accounts:change_role' %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="username" value="{{ u.username }}" />
+                <select name="role">
+                  <option value="user" {% if u.role == "user" or not u.role %}selected{% endif %}>user</option>
+                  <option value="vip" {% if u.role == "vip" %}selected{% endif %}>vip</option>
+                  <option value="admin" {% if u.role == "admin" %}selected{% endif %}>admin</option>
+                </select>
+                <button type="submit">Set role</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+{% endblock %}
