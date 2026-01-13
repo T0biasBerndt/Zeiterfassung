@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 # cookie settings
 _COOKIE_NAME = 'acct_user'  # Name des Cookies, das den angemeldeten Nutzer speichert
 _COOKIE_SALT = 'accounts-salt'  # Salt für das Signieren des Cookie-Inhalts
-_COOKIE_MAX_AGE = 60 * 60 * 24 * 7  # Lebensdauer des Cookies in Sekunden (eine Woche)
+_COOKIE_MAX_AGE = 60 * 60 * 24 * 7  # Lebensdauer des Cookies in Sekunden (eine Woche) 
 
 def _read_user_from_cookie(request):
     cookie = request.COOKIES.get(_COOKIE_NAME)
