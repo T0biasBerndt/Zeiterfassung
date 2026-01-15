@@ -1,4 +1,4 @@
-{% extends "accounts/base.html" %} 
+{% extends "accounts/base.html" %}
 {% block content %}
   <h1>Home</h1>
 
@@ -57,6 +57,15 @@
                   <td>{{ r.minutes }}</td>
                   <td>{{ r.module }}</td>
                   <td>{{ r.content }}</td>
+                  <td><form method="post" action="{% url 'accounts:delete_report' %}" style="display:inline;">
+                    {% csrf_token %}
+                      <input type="hidden" name="minutes" value="{{ r.minutes }}">
+                      <input type="hidden" name="date" value="{{ r.date }}">
+                      <input type="hidden" name="module" value="{{ r.module }}">
+                      <input type="hidden" name="content" value="{{ r.content }}">
+                      <button type="submit">Delete</button>
+                    </form>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>

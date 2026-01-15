@@ -15,7 +15,9 @@ urlpatterns = [
     path('user/deny-upgrade/', views.deny_upgrade, name='deny_upgrade'),  # Admin lehnt Upgrade-Anfrage ab
     # Endpoint zum Erstellen von Arbeitsberichten
     path('reports/create/', views.create_report, name='create_report'),
-    # neue Endpoints: export und upload (nur für VIP/Admin)
+    # delete report endpoint
+    path('reports/delete/', views.delete_report , name='delete_report'),
+    # export und upload (nur für VIP/Admin)
     path('reports/export/', views.export_reports, name='export_reports'),
     path('reports/upload/', views.upload_reports, name='upload_reports'),
 ]

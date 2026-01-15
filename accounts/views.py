@@ -220,6 +220,23 @@ def create_report(request):
     # egal ob Erfolg oder nicht, zurück zur Startseite
     return redirect(reverse('accounts:home'))
 
+def delete_report(request):
+    if request.method != 'POST':
+        return redirect(reverse('accounts:home'))
+    current_user = _read_user_from_cookie(request)
+    if not current_user:
+        return redirect(reverse('accounts:login'))  # nur angemeldete Nutzer dürfen Berichte anlegen
+    form = WorkReportForm(request.POST)
+    if form.is_valid():
+        minutes = form.cleaned_data['minutes']
+        date = form.cleaned_data['date']  # DateField -> date object, str() ok
+        module = form.cleaned_data['module']
+        content = form.cleaned_data['content']
+        # speichere den Bericht in der JSON (owner = username)
+        storage.delete_reports(current_user.get('username'), minutes, date, module, content)
+    # egal ob Erfolg oder nicht, zurück zur Startseite
+    return redirect(reverse('accounts:home'))
+
 def _role_is_vip_or_admin(userdict):
     # helper: prüft ob Rolle 'vip' oder 'admin' ist
     if not userdict:

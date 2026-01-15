@@ -185,6 +185,17 @@ def save_reports(reports):
     with open(_REPORTS_FILE, 'w', encoding='utf-8') as f:
         json.dump(reports, f, ensure_ascii=False, indent=2)  # überschreibe Datei
 
+def delete_reports(username, minutes, date_str, module, content):
+    reports = load_reports()
+    new_reports = [r for r in reports if not (
+        r.get('username') == username and
+        str(r.get('minutes')) == str(minutes) and
+        str(r.get('date')) == str(date_str) and
+        r.get('module') == module and
+        r.get('content') == content
+    )]
+    save_reports(new_reports)
+
 def add_report(username, minutes, date_str, module, content):
     """
     Fügt einen Bericht hinzu:
